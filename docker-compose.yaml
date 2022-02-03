@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  postgres:
+    image: "postgres"
+    shm_size: 1g
+    container_name: "postgres"
+    hostname: ${DBHOSTNAME}
+    restart: on-failure
+    volumes:
+      - "/opt/databases/volume-promoapp/_data:/var/lib/postgresql/data"
+    ports:
+      - ${DBPORT}:${DBPORT}
+    environment:
+      POSTGRES_PASSWORD: ${DBPASS}
+      POSTGRES_DB: ${DB}
+      POSTGRES_USER: ${DBUSER}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  backend:
+    image: "glauberfaria/promoapp:latest"
+    container_name: backend
+    restart: always
+    links:
+      - postgres
+    ports:
+      - 8080:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - CONTAINERNAME=${DBHOSTNAME}
+      - DBPORT=${DBPORT}
+      - DB=${DB}
+      - USER=${DBUSER}
+      - PASS=${DBPASS}
+
