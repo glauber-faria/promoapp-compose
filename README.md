@@ -1,4 +1,4 @@
 # promoapp-compose
 
-###start application:
+## start application:
 docker-compose pull && docker-compose up -d
